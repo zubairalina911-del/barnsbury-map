@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Barnsbury Community Spaces & Football Pitches</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #f5f5f0; }
+  .page-header { background: #1F4E79; color: white; padding: 15px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .page-header h1 { font-size: 16px; font-weight: 700; }
+  .page-header p { font-size: 11px; opacity: 0.8; margin-top: 3px; }
+  .header-badges { display: flex; gap: 10px; flex-shrink: 0; }
+  .badge { background: rgba(255,255,255,0.18); border-radius: 5px; padding: 6px 14px; font-size: 11px; text-align: center; }
+  .badge strong { display: block; font-size: 19px; font-weight: 700; line-height: 1.1; }
+  #map { width: 100%; height: 640px; }
+  .legend { background: white; border: 1px solid #ccc; border-radius: 6px; padding: 11px 13px; font-size: 11px; line-height: 1.8; box-shadow: 0 2px 8px rgba(0,0,0,0.12); min-width: 200px; }
+  .legend-title { font-weight: 700; font-size: 12px; margin-bottom: 6px; color: #1F4E79; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+  .legend-section { font-weight: 700; font-size: 10.5px; color: #555; margin: 7px 0 3px; }
+  .legend-item { display: flex; align-items: center; gap: 7px; margin-bottom: 2px; font-size: 11px; }
+  .dot { width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0; border: 2px solid white; box-shadow: 0 0 0 1px #999; }
+  .footnote { background: #f0ede8; padding: 8px 24px; font-size: 10px; color: #777; border-top: 1px solid #ddd; }
+</style>
+</head>
+<body>
+<div class="page-header">
+  <div>
+    <h1>Barnsbury Village Hall — Community Spaces &amp; Football Pitches: Market Mapping</h1>
+    <p>All comparable community spaces and football pitches within approx. 1 mile of proposed site &nbsp;|&nbsp; Barnsbury, Islington &nbsp;|&nbsp; June 2026</p>
+  </div>
+  <div class="header-badges">
+    <div class="badge"><strong>9</strong>community spaces</div>
+    <div class="badge"><strong>20</strong>pitches &amp; facilities</div>
+  </div>
+</div>
+<div id="map"></div>
+<div class="footnote">Street map &copy; OpenStreetMap contributors &nbsp;|&nbsp; Survey data June 2026 &nbsp;|&nbsp; Click any pin for full details and pricing &nbsp;|&nbsp; Scroll to zoom</div>
+<script>
+const map = L.map('map',{center:[51.5390,-0.1085],zoom:14});
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',maxZoom:19}).addTo(map);
+
+function icon(color,label,sz){
+  sz=sz||28;
+  return L.divIcon({className:'',html:`<div style="background:${color};color:white;border:2px solid white;border-radius:50%;width:${sz}px;height:${sz}px;display:flex;align-items:center;justify-content:center;font-family:Arial;font-size:${sz<=24?9:11}px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,0.45);">${label}</div>`,iconSize:[sz,sz],iconAnchor:[sz/2,sz/2],popupAnchor:[0,-(sz/2+4)]});
+}
+function siteIcon(){return L.divIcon({className:'',html:`<div style="background:#C0392B;color:white;border:3px solid white;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-family:Arial;font-size:20px;font-weight:700;box-shadow:0 3px 10px rgba(0,0,0,0.5);">&#9733;</div>`,iconSize:[36,36],iconAnchor:[18,18],popupAnchor:[0,-22]});}
+
+function pop(name,addr,rows,hcol){
+  let r=rows.map((x,i)=>`<tr style="background:${i%2?'#fafafa':'white'}"><td style="padding:4px 6px;color:#666;font-size:11px;width:38%;vertical-align:top;">${x[0]}</td><td style="padding:4px 6px;font-weight:600;color:#222;font-size:11px;">${x[1]}</td></tr>`).join('');
+  return `<div style="font-family:Arial;min-width:270px;max-width:330px;"><div style="background:${hcol};color:white;padding:9px 12px;margin:-1px -1px 0;border-radius:4px 4px 0 0;"><div style="font-size:13px;font-weight:700;line-height:1.3;">${name}</div><div style="font-size:10px;opacity:0.85;margin-top:2px;">${addr}</div></div><div style="border:1px solid #ddd;border-top:none;border-radius:0 0 4px 4px;overflow:hidden;"><table style="width:100%;border-collapse:collapse;">${r}</table></div></div>`;
+}
+
+/* ── 9 COMMUNITY SPACES (blue) ── */
+const spaces=[
+  {lat:51.5363,lng:-0.1152,num:'1',name:'Bransbury Community Centre',addr:'12 Jays Street, Barnsbury Estate, N1 0FE',rows:[['Capacity','Large hall: up to 100 | Seminar room | Kitchen | Baby changing'],['Hall rate','£40/hr'],['Discounts','Residents, weekday hires & bulk bookings'],['Contact','020 7833 2525 | HallBookings@newlon.org.uk']]},
+  {lat:51.5359,lng:-0.1150,num:'2',name:'Barnsbury Estate Community Centre Hall',addr:'12 Jays Street, Barnsbury, N1 0FE',rows:[['Capacity','Large hall: 80 (80 chairs, 17 tables) | Seminar room | Accessible toilet | Kitchen | Garden access'],['Large Hall','£40/hr + £25 caretaking + £150 deposit'],['Seminar Room','£25/hr + £25 caretaking + £150 deposit'],['Hours','9am–10:30pm weekdays & Sat | 9am–10pm Sun'],['Contact','020 7033 4605 | community.services@newlon.org.uk']]},
+  {lat:51.5360,lng:-0.1110,num:'3a',name:'Church on the Corner — Small Meeting Room',addr:'64 Barnsbury Road, N1 0ES',rows:[['Capacity','6 people | Kitchenette | Toilet'],['Rate','£30.60/hr (2hr minimum)'],['Booking','Via Sharesy website'],['Note','Admin response time can be slow']]},
+  {lat:51.5357,lng:-0.1107,num:'3b',name:'Church on the Corner — Main Hall',addr:'64 Barnsbury Road, N1 0ES',rows:[['Capacity','50 people | 50 chairs | 4 foldaway tables | Kitchen | Toilet'],['Rate','£51/hr (2hr minimum)'],['Booking','Via Sharesy website'],['Note','Admin response time can be slow']]},
+  {lat:51.5326,lng:-0.1084,num:'4',name:'Claremont Project — Barnsbury Room',addr:'24–27 White Lion Street, N1 9PD',rows:[['Capacity','12 people | Kitchenette | Sofa + armchairs | Board table'],['Rate','£21/hr'],['Access','Wheelchair accessible | Lift | Accessible toilet'],['Location','Angel Station 0.1mi | Ideal for meetings, focus groups, therapy']]},
+  {lat:51.5384,lng:-0.1020,num:'5',name:"St Mary's Church Islington + St Stephens Canonbury",addr:'Upper Street N1 2TX & New North Road N1 2DF',rows:[['Rooms (St Mary\'s)','Crypt rooms (30–35 cap): £40–£47/hr | Garden Room (50): £42/hr | Community Room (15): £27/hr | Church (600): £100/hr'],['Rooms (St Stephens)','Urban (10): £35/hr | Hall (60): £65/hr | Garden Room (50): £42/hr | Church (150): £80/hr'],['Contact','020 7704 1895 | bookings@stmaryislington.org']]},
+  {lat:51.5326,lng:-0.1156,num:'6',name:'Hugh Cubitt Community Centre',addr:'48 Collier Street, N1 9QZ',rows:[['Capacity','Hall: 40 | Meeting Room: 8'],['Hall','£30/hr'],['Meeting Room','£25/hr'],['Kitchen','£10/hr extra (via hatch)'],['Access','Lift | Managed by Peabody'],['Contact','020 3828 3588 | HughCubitt.CommunityCentre@peabody.org.uk']]},
+  {lat:51.5329,lng:-0.1159,num:'7',name:'Barnsbury Living',addr:'Via Hugh Cubitt Centre, Collier Street, N1',rows:[['Anchor Suite (40)','£55/hr | Half day £210 | Full day £420'],['Main Hall (80)','£70/hr | Half day £270 | Full day £540'],['Small Room (10)','£25/hr | Half day £90 | Full day £270'],['Maisonette (25)','£20/hr | Half day £75 | Full day £150'],['Combined (110)','£85/hr | Half day £330 | Full day £660'],['Discount','25% off for charities | Hall + Anchor Suite until 9pm only'],['Contact','hughcubittbookings@peabody.org.uk | 020 3828 3588']]},
+];
+spaces.forEach(v=>{L.marker([v.lat,v.lng],{icon:icon('#1D4E89',v.num)}).addTo(map).bindPopup(pop(v.name,v.addr,v.rows,'#1D4E89'),{maxWidth:360});});
+
+/* ── 20 FOOTBALL PITCHES / FACILITIES (green) ── */
+const pitches=[
+  {lat:51.5368,lng:-0.1148,num:'A',name:'Thornhill Road STP',addr:'Lofting Road, N1 1HN',rows:[['Pitch','1 pitch, small, artificial grass'],['Pricing','Not published'],['Contact','info@barnsbury.org | 020 4558 1409']]},
+  {lat:51.5385,lng:-0.1026,num:'B',name:'William Tyndale Primary School',addr:'Upper Street, N1 2GG',rows:[['Pitch','1 pitch, small, artificial grass'],['Pricing','Not published (school use primarily)'],['Contact','admin@williamtyndale.islington.sch.uk | 020 7226 6803']]},
+  {lat:51.5412,lng:-0.1001,num:'C',name:'Canonbury Primary School',addr:'124 Canonbury Road, N1 2UT',rows:[['Pitch','1 pitch, small, artificial grass'],['Pricing','Not published (school use primarily)'],['Contact','admin@canonbury.islington.sch.uk | 020 7226 5020']]},
+  {lat:51.5382,lng:-0.1018,num:'D',name:"St Mary Islington Community Partnership",addr:"St Mary's Church Office, Upper Street, N1 2TX",rows:[['Pitch','1 pitch, medium, artificial grass'],['Pricing','Not published'],['Contact','020 7704 1895']]},
+  {lat:51.5352,lng:-0.1076,num:'E',name:'Barnard Park',addr:'Copenhagen Street, N1 0ER',rows:[['Pitch','5-a-side (1/3 of full pitch), artificial grass'],['Adult (anytime) non-member','£43.70/hr'],['Junior off-peak non-member','£25.60/hr'],['Operator','GLL / Islington Council']]},
+  {lat:51.5540,lng:-0.1143,num:'F',name:'St Mary Magdalene Academy',addr:'475 Liverpool Road, N7 8PG',rows:[['Pitch','1 pitch, small, artificial grass'],['Pricing','Not published (school use primarily)'],['Contact','firstcontact@smmacademy.org']]},
+  {lat:51.5553,lng:-0.1127,num:'G',name:'Paradise Park',addr:'Mackenzie Road, N7 8SE',rows:[['Pitch','5-a-side, medium, artificial grass'],['Adult non-member','£53.00/hr'],['Adult member','£45.95/hr'],['Junior off-peak non-member','£30.95/hr'],['Junior off-peak member','£25.25/hr'],['Contact','islington@gll.org | 020 3793 6880']]},
+  {lat:51.5378,lng:-0.1008,num:'H',name:'City of London Academy',addr:'Prebend Street, N1 8PQ',rows:[['Facilities','2 sports halls + 1 pitch, small, artificial grass'],['Pricing','Not published'],['Contact','info@colai.org.uk | 020 7226 8611']]},
+  {lat:51.5530,lng:-0.1010,num:'I',name:'Highbury Fields Courts & Pitches',addr:'Church Path, N5 1RR',rows:[['Pitch','7-a-side, medium, artificial grass'],['Adult non-member','£91.90/hr'],['Adult member','£78.45/hr'],['Contact','islingtontenniscentre@gll.org | 020 3793 6880']]},
+  {lat:51.5524,lng:-0.1178,num:'J',name:'Market Road ATP',addr:'Market Road, Islington, N7 9PL',rows:[['Pitches','3 small + 2 full-size, all artificial grass'],['Adult peak non-member','£110.30/hr'],['Adult peak member','£94.30/hr'],['Adult peak concession','£88.30/hr'],['Junior off-peak non-member','£52.75/hr'],['Junior off-peak member','£44.65/hr'],['Contact','020 3793 6880']]},
+  {lat:51.5438,lng:-0.0995,num:'K',name:'Rosemary Gardens',addr:'Southgate Road, N1 3JP',rows:[['Pitch','1 pitch, medium, artificial grass'],['Junior off-peak non-member','£30.95/hr'],['Junior off-peak member','£25.00/hr'],['Contact','islingtontenniscentre@gll.org | 020 3793 6880']]},
+  {lat:51.5323,lng:-0.0818,num:'L',name:'Crown & Manor Boys Club',addr:'1–12 Wiltshire Row, Hackney, N1 5DH',rows:[['Pitches','17 pitches, small, artificial grass'],['Rate','£1 per evening session (heavily subsidised)'],['Contact','020 7739 5906']]},
+  {lat:51.5546,lng:-0.1085,num:'M',name:'Whittington Park Football Pitch',addr:'Holloway Road, N19 4RS',rows:[['Pitch','5-a-side (1/3 of full pitch), grass'],['Adult non-member','£51.80/hr'],['Adult member','£45.95/hr'],['Contact','020 3793 6880']]},
+  {lat:51.5420,lng:-0.1168,num:'N',name:'Caledonian Park Court',addr:'Market Road, Islington, N7 9PL',rows:[['Facilities','Court and pitch facilities'],['Pricing','See Market Road ATP (pin J) for published rates']]},
+  {lat:51.5558,lng:-0.1073,num:'O',name:'Hanover Primary School',addr:'Noel Road, N1 8BD',rows:[['Pitches','7 pitches, small, artificial grass'],['Pricing','Not published (school use primarily)'],['Contact','admin@hanover.islington.sch.uk | 020 7689 8949']]},
+  {lat:51.5520,lng:-0.1090,num:'P',name:'City of London Academy Highbury Grove',addr:'8 Highbury Grove, N5 2EQ',rows:[['Facilities','1 sports hall + 1 pitch, medium, artificial grass'],['Pricing','Not published'],['Contact','admin@highburygrove.cola.org.uk | 020 7288 8900']]},
+  {lat:51.5290,lng:-0.1025,num:'Q',name:'Capital City College (Angel Campus)',addr:'311–321 Goswell Road, EC1V 7DD',rows:[['Pitch','1 pitch, small, artificial grass'],['Pricing','Not published'],['Contact','02073916416']]},
+  {lat:51.5512,lng:-0.1208,num:'R',name:'Kings Cross Fitness',addr:'1 Harrier Street, N1C 4EP',rows:[['Facilities','1 sports hall, small'],['Pricing','Not published']]},
+  {lat:51.5496,lng:-0.1000,num:'S',name:'London Metropolitan University (Holloway)',addr:'166–220 Holloway Road, N7 8DB',rows:[['Facilities','1 sports hall, small'],['Contact','fitness@londonmet.ac.uk | 020 7423 0000']]},
+  {lat:51.5320,lng:-0.0820,num:'T',name:'Thomas Fairchild School',addr:'Forston Street, Hackney, N1 7HA',rows:[['Facilities','Pitch / sports facilities'],['Pricing','Contact details not available']]},
+];
+pitches.forEach(v=>{L.marker([v.lat,v.lng],{icon:icon('#1A7A3C',v.num,24)}).addTo(map).bindPopup(pop(v.name,v.addr,v.rows,'#1A7A3C'),{maxWidth:360});});
+
+/* Site */
+L.marker([51.5370,-0.1115],{icon:siteIcon()}).addTo(map).bindPopup(pop('&#9733; Barnsbury Village Hall — Proposed Site','Barnsbury, Islington, N1',[['Status','Proposed new community space and football pitch'],['Purpose','Community hall, football pitch and play area'],['Business case','Informed by this market mapping exercise']],'#C0392B'),{maxWidth:300}).openPopup();
+
+/* Tube */
+[{lat:51.5326,lng:-0.1062,name:'Angel'},{lat:51.5362,lng:-0.1231,name:'Caledonian Rd'}].forEach(t=>{
+  L.marker([t.lat,t.lng],{icon:L.divIcon({className:'',html:`<div style="background:#2ECC71;color:white;border:2px solid white;border-radius:4px;padding:2px 5px;font-family:Arial;font-size:9px;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,0.3);white-space:nowrap;">&#9675; Tube</div>`,iconSize:[52,20],iconAnchor:[26,10],popupAnchor:[0,-14]})}).addTo(map).bindPopup(`<strong>${t.name}</strong> Underground`,{maxWidth:160});
+});
+
+/* Legend */
+const leg=L.control({position:'bottomright'});
+leg.onAdd=function(){
+  const d=L.DomUtil.create('div','legend');
+  d.innerHTML=`<div class="legend-title">Map key</div>
+<div class="legend-item"><div class="dot" style="background:#C0392B;box-shadow:0 0 0 1px #C0392B;"></div><strong>&#9733; Proposed Village Hall site</strong></div>
+<div class="legend-section">Community spaces — blue (1–7)</div>
+<div class="legend-item"><div class="dot" style="background:#1D4E89;box-shadow:0 0 0 1px #1D4E89;"></div>9 venues mapped (click for details)</div>
+<div class="legend-section">Football pitches — green (A–T)</div>
+<div class="legend-item"><div class="dot" style="background:#1A7A3C;box-shadow:0 0 0 1px #1A7A3C;"></div>20 pitches &amp; facilities mapped</div>
+<div class="legend-item"><div class="dot" style="background:#2ECC71;border-radius:3px;box-shadow:0 0 0 1px #2ECC71;"></div>Underground stations</div>
+<div style="margin-top:8px;font-size:10px;color:#999;border-top:1px solid #eee;padding-top:6px;line-height:1.5;">Click any pin for full<br>details and pricing</div>`;
+  return d;
+};
+leg.addTo(map);
+</script>
+</body>
+</html>
