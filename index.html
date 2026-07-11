@@ -90,7 +90,7 @@ const pitches=[
 pitches.forEach(v=>{L.marker([v.lat,v.lng],{icon:icon('#1A7A3C',v.num,24)}).addTo(map).bindPopup(pop(v.name,v.addr,v.rows,'#1A7A3C'),{maxWidth:360});});
 
 /* Site */
-L.marker([51.5370,-0.1115],{icon:siteIcon()}).addTo(map).bindPopup(pop('&#9733; Barnsbury Village Hall — Proposed Site','Barnsbury, Islington, N1',[['Status','Proposed new community space and football pitch'],['Purpose','Community hall, football pitch and play area'],['Business case','Informed by this market mapping exercise']],'#C0392B'),{maxWidth:300}).openPopup();
+ L.marker([51.53600,-0.11545],{icon:siteIcon()}).addTo(map).bindPopup(('&#9733; Barnsbury Village Hall — Proposed Site','12 Jays Street, Barnsbury Estate, London N1 0FE',[['Status','Proposed new community space and football pitch'],['Purpose','Community hall, football pitch and play area'],['Business case','Informed by this market mapping exercise']],'#C0392B'),{maxWidth:300}).openPopup();
 
 /* Tube */
 [{lat:51.5326,lng:-0.1062,name:'Angel'},{lat:51.5362,lng:-0.1231,name:'Caledonian Rd'}].forEach(t=>{
