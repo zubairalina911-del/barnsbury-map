@@ -90,7 +90,7 @@ const pitches=[
 pitches.forEach(v=>{L.marker([v.lat,v.lng],{icon:icon('#1A7A3C',v.num,24)}).addTo(map).bindPopup(pop(v.name,v.addr,v.rows,'#1A7A3C'),{maxWidth:360});});
 
 /* Site */
- L.marker([51.53600,-0.11545],{icon:siteIcon()}).addTo(map).bindPopup(pop('★ Lofting Road 5 Aside Football Cage','Lofting Road, London N1 1ER',[['Status','Proposed football cage'],['Proposed facilities','5-a-side football cage'],['Purpose','Community football and recreation facility'],['Business case','Location identified following market mapping of nearby community sports facilities']],'#C0392B'),{maxWidth:360});
+ L.marker([51.54535,-0.11245],{icon:siteIcon()}).addTo(map).bindPopup(pop('★ Lofting Road 5 Aside Football Cage','Lofting Road, London N1 1ER',[['Status','Proposed football cage'],['Proposed facilities','5-a-side football cage'],['Purpose','Community football and recreation facility'],['Business case','Location identified following market mapping of nearby community sports facilities']],'#C0392B'),{maxWidth:360});
 
 /* Tube */
 [{lat:51.5326,lng:-0.1062,name:'Angel'},{lat:51.5362,lng:-0.1231,name:'Caledonian Rd'}].forEach(t=>{
